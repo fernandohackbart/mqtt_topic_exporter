@@ -11,19 +11,9 @@ RUN go get -u github.com/prometheus/client_golang/prometheus &&  \
     go build
 FROM alpine
 USER root
-COPY --from=builder /go/src/mqtt-topic-exporter/mqtt-topic-exporter /usr/local/bin/mqtt-topic-exporter
-ENTRYPOINT ["/bin/sh"]
-#ENTRYPOINT ["/usr/local/bin/mqtt-topic-exporter","--web.listen-address=':9981'","--web.telemetry-path='metrics'"]
-
-#  -h, --help                     Show context-sensitive help (also try --help-long and --help-man).
-#
-#                                 Address on which to expose metrics and web interface.
-#
-#                                 Path under which to expose metrics.
-#      --mqtt.retain-time="1m"    Retain duration for a topic
-#      --mqtt.server=MQTT.SERVER  MQTT Server address URI mqtts://user:pass@host:port
-#      --mqtt.topic=MQTT.TOPIC    Watch MQTT topic
-#      --log.level="info"         Only log messages with the given severity or above. Valid levels: [debug, info, warn, error, fatal]
-#      --log.format="logger:stderr"
-#                                 Set the log target and format. Example: "logger:syslog?appname=bob&local=7" or "logger:stdout?json=true"
-#      --version                  Show application version.
+COPY --from=builder /go/src/mqtt-topic-exporter/mqtt-topic-exporter /usr/bin/mqtt-topic-exporter
+EXPOSE 9981/tcp
+ENV MQTT_SERVER mqtt://192.168.1.110:1883
+ENV MQTT_TOPIC esp/dht/temperature
+ENV MQTT_LOG_LEVEL warn
+ENTRYPOINT ["/usr/bin/mqtt-topic-exporter","--mqtt.server ${MQTT_SERVER}","--mqtt.topic ${MQTT_TOPIC}","--log.level=${MQTT_LOG_LEVEL}"]
