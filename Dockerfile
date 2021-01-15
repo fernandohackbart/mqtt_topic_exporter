@@ -8,8 +8,8 @@ RUN go get -u github.com/prometheus/client_golang/prometheus &&  \
     go get -u github.com/yosssi/gmq/mqtt && \
     go get -u github.com/yosssi/gmq/mqtt/client && \
     go get -u gopkg.in/alecthomas/kingpin.v2 && \
-    go build
-FROM debian
+    CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static"' .
+FROM alpine
 USER root
 COPY --from=builder /go/src/mqtt-topic-exporter/mqtt-topic-exporter /usr/bin/mqtt-topic-exporter
 EXPOSE 9981/tcp
